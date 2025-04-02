@@ -1,0 +1,82 @@
+import processing.core.PApplet;
+import processing.core.PConstants;
+
+public class Enemy {
+    public int x, y, w, h;
+    public int left, right, top, bottom;
+    public boolean isAlive;
+    PApplet p;
+    public int hp,  hpBarWidth, maxHp;
+    public float speed;
+    public int TimeToShoot;
+
+    public Enemy(PApplet p, int x, int y, int w, int h) {
+        this.p = p;
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        maxHp = 20;
+        hp = 20;
+        hpBarWidth = 60;
+
+        left = x - w / 2;
+        right = x + w / 2;
+        top = y - h / 2;
+        bottom = y + h / 2;
+        isAlive = true;
+        speed = 1;
+        TimeToShoot = (int) p.random(60,180);
+    }
+
+    public void makeEnemy() {
+        p.rectMode(PConstants.CENTER); // make the first two parameters as the enemy's center
+        p.fill(255,0,0);
+        p.rect(x, y, w, h);
+        p.fill(150);
+        p.rect(x, y + 20, 20, 40); // Draw the turret above the tank body
+        drawHealthBar();
+    }
+
+    public void drawHealthBar(){
+        p.noStroke();
+        // Draw the background of the health bar
+        p.fill(189, 195, 199);
+        p.rect(x , y - 40, hpBarWidth, 5);
+
+        float currentHpWidth = (hp / (float) maxHp) * hpBarWidth;
+        if (hp > 20) {
+            p.fill(46, 204, 113);
+        }
+        else if (hp > 10) {
+            p.fill(230, 126, 34);
+        }
+        else {
+            p.fill(231, 76, 60);
+        }
+        p.rect(x, y - 40, currentHpWidth, 5);
+        // Reset fill to default
+        p.fill(150);
+        p.stroke(0);
+    }
+
+
+
+    public void move(){
+        if(y < p.height){
+            y+=speed;
+        }
+        else{
+            isAlive = false;
+        }
+    }
+
+    public Bullet shoot(){
+        if(p.frameCount % TimeToShoot == 0){
+            return new Bullet(p,x,y);
+
+        }
+        return null;
+    }
+}
+
