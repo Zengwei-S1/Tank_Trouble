@@ -1,0 +1,66 @@
+import processing.core.PApplet;
+
+public class Player {
+    PApplet p;
+    public int x, y;
+    public int w, h;
+    public boolean isMovingUp;
+    public boolean isMovingDown;
+    public boolean isTurningLeft;
+    public boolean isTurningRight;
+    public float speed;
+    public int hp = 100, maxHP = 100;
+    public int hpBarWidth = 50;
+
+    public Player(PApplet p, int startingX, int startingY, int startingW, int startingH) {
+        this.p = p;
+        x = startingX;
+        y = startingY;
+        w = startingW;
+        h = startingH;
+        isMovingUp = false;
+        isMovingDown = false;
+        isTurningLeft = false;
+        isTurningRight = false;
+        speed = 5;
+    }
+
+    public void render() {
+        // Draw the tank body
+        p.fill(150); // Set color for the body
+        p.rect(x, y, w, h); // Draw the rectangle centered at the origin
+        // Draw the tank turret
+        p.fill(100);
+        p.rect(x, y - 20, 20, 40); // Draw the turret above the tank body
+    }
+
+    public void move() {
+        if (isTurningLeft) {
+            x -= speed;
+        }
+        if (isTurningRight) {
+            x += speed;
+        }
+        if (isMovingUp) {
+            y -= speed;
+        }
+        if (isMovingDown) {
+            y += speed;
+        }
+
+        // Boundary checks to keep the tank within the screen
+        if (x < 0) {
+            x = 0;
+        }
+        else if (x + w > p.width) {
+            x = p.width - w;
+        }
+
+        if (y < 0) {
+            y = 0;
+        }
+        else if (y + h > p.height) {
+            y = p.height - h;
+        }
+    }
+}
