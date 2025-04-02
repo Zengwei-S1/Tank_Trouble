@@ -1,0 +1,71 @@
+import processing.core.PApplet;
+public class Bullet {
+    public int x,y,diameter, speed;
+    public int left, right, top, bottom;
+    public boolean Remove;
+    public int damage;
+    PApplet p;
+
+    //constructor
+    public Bullet(PApplet p, int x, int y){
+        this.p = p;
+        this.x=x;
+        this.y=y;
+        speed = 8;
+        diameter = 15;
+        left = x - diameter /2;
+        right = x + diameter/2;
+        top = y - diameter/2;
+        bottom = y+diameter/2;
+        damage = 5;
+    }
+
+    public void display(){
+        p.fill(0); // Set bullet color to black
+        p.circle(x, y, diameter);
+        p.fill(150); // Reset fill color to default
+    }
+
+    public void moveBullet(){
+        y-= speed;
+        left = x - diameter /2;
+        right = x + diameter/2;
+        top = y - diameter/2;
+        bottom = y+diameter/2;
+    }
+
+    public void enemyMoveBullet(){
+        y += speed;
+        left = x - diameter /2;
+        right = x + diameter/2;
+        top = y - diameter/2;
+        bottom = y+diameter/2;
+    }
+
+    public void checkBullet(){
+        if(y < 0){
+            Remove = true;
+        }
+    }
+    public void hitPlayer(Player p1){
+        if (bottom >= p1.y - p1.h / 2 && top <= p1.y + p1.h / 2 && right >= p1.x - p1.w / 2 && left <= p1.x + p1.w / 2) {
+            p1.hp -= damage;
+            Remove = true;
+        }
+
+    }
+    public void collision(Enemy E){
+        // bullet shot the enemy
+        if(top <= E.bottom && bottom>=E.top&& left <= E.right && right>= E.left){
+            E.hp -= damage;
+            //E.isAlive = false;
+            Remove = true;
+            if(E.hp <= 0){
+                E.isAlive = false;
+            }
+        }
+
+
+    }
+}
+
