@@ -1,0 +1,201 @@
+import processing.core.PApplet;
+import java.util.ArrayList;
+
+public class Main extends PApplet {
+    public static void main(String[] args) {
+        PApplet.main("Main");
+    }
+    Player p1;
+    public int numberOfTankDestroyed = 0;
+    public int gameScreen = 0;
+
+    ArrayList<Bullet> bulletList;
+    ArrayList<Enemy> enemyList;
+    ArrayList<Bullet> enemyBulletList;
+
+    public void setup() {
+        p1 = new Player(this, width / 2, height / 2, 50, 50);
+        bulletList = new ArrayList<Bullet>();
+        enemyList = new ArrayList<Enemy>();
+        enemyBulletList = new ArrayList<Bullet>();
+        spawnEnemies();
+
+    }
+
+    public void settings() {
+        size(1650, 950);
+    }
+
+    public void draw() {
+        if (gameScreen == 0) {
+            initialScreen();
+        }
+        else if (gameScreen == 1) {
+            gameplayScreen();
+        }
+        else if (gameScreen == 2) {
+            gameOverScreen();
+        }
+
+
+    }
+
+    public void initialScreen(){
+        background(236,240,241);
+        textAlign(CENTER);
+        fill(52,73,94);
+        textSize(60);
+        text("Tanks Wars", width/2, height / 2);
+        textSize(15);
+        text("Click to start", width / 2, height / 2);
+    }
+
+    public void gameOverScreen(){
+        background(44,62,80);
+        textAlign(CENTER);
+        fill(236,240,241);
+        text("Number of Tanks Destroyed: ", width/2, height/2-120);
+        textSize(130);
+        text(numberOfTankDestroyed,width/2,height/2);
+        textSize(15);
+        text("Click to restart", width/2, height-30);
+    }
+
+    public void gameplayScreen(){
+        background(236,240,241);
+        p1.render();
+        p1.move();
+        drawP1HealthBar();
+        for (Enemy e : enemyList) {
+            e.makeEnemy();
+            e.move();
+
+            Bullet enemyBullet = e.shoot();
+            if(enemyBullet != null){
+                enemyBulletList.add(enemyBullet);
+            }
+        }
+
+        for (Bullet b : bulletList) {
+            b.display();
+            b.moveBullet();
+            b.checkBullet();
+            for (Enemy e : enemyList) {
+                b.collision(e);
+            }
+        }
+
+        for(Bullet eB : enemyBulletList){
+            eB.display();
+            eB.enemyMoveBullet();
+            eB.checkBullet();
+            eB.hitPlayer(p1);
+            if(p1.hp<=0){
+                gameOver();
+            }
+        }
+
+        if(frameCount % 30 == 0){
+            spawnEnemies();
+        }
+
+        for (int i = bulletList.size() - 1; i >= 0; i = i - 1) {
+            Bullet bullett = bulletList.get(i);
+            if (bullett.Remove) {
+                bulletList.remove(bullett);
+            }
+        }
+
+        for (int i = enemyList.size() - 1; i >= 0; i = i - 1) {
+            Enemy e = enemyList.get(i);
+            if (e.isAlive == false) {
+                numberOfTankDestroyed++;
+                enemyList.remove(e);
+            }
+        }
+    }
+    public void mousePressed(){
+        if(gameScreen == 0){
+            startGame();
+        }
+        if(gameScreen == 2){
+            restart();
+        }
+    }
+
+    public void startGame(){
+        gameScreen = 1;
+    }
+
+    public void gameOver(){
+        gameScreen = 2;
+    }
+
+    public void restart(){
+        numberOfTankDestroyed = 0;
+        p1.hp = p1.maxHP; 
+        gameScreen = 1;
+    }
+    public void drawP1HealthBar() {
+        noStroke();
+        // Draw the background of the health bar
+        fill(189, 195, 199);
+        rect(p1.x , p1.y + 40, p1.hpBarWidth, 5);
+        float currentHpWidth = (p1.hp / (float) p1.maxHP) * p1.hpBarWidth;
+        if (p1.hp > 60) {
+            fill(46, 204, 113);
+        }
+        else if (p1.hp > 30) {
+            fill(230, 126, 34);
+        }
+        else {
+            fill(231, 76, 60);
+        }
+        rect(p1.x, p1.y + 40, currentHpWidth, 5);
+        // Reset fill to default
+        fill(150);
+        stroke(0);
+    }
+
+    public void spawnEnemies(){
+        int enemyW = 50;
+        int enemyH = 50;
+        int enemyX = (int) random (enemyW / 2, width - enemyW /2);
+        int enemyY = -enemyH / 2;
+        enemyList.add(new Enemy(this, enemyX,enemyY,enemyW,enemyH));
+    }
+
+    public void keyPressed() {
+        if (key == 'w') {
+            p1.isMovingUp = true;
+        }
+        if (key == 's') {
+            p1.isMovingDown = true;
+        }
+        if (key == 'a') {
+            p1.isTurningLeft = true;
+        }
+        if (key == 'd') {
+            p1.isTurningRight = true;
+        }
+
+        if (key == ' ') {
+            bulletList.add(new Bullet(this, p1.x, p1.y));
+        }
+    }
+
+    public void keyReleased() {
+        if (key == 'w') {
+            p1.isMovingUp = false;
+        }
+        if (key == 's') {
+            p1.isMovingDown = false;
+        }
+        if (key == 'a') {
+            p1.isTurningLeft = false;
+        }
+        if (key == 'd') {
+            p1.isTurningRight = false;
+        }
+    }
+}
